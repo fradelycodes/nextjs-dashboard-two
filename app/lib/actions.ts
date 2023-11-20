@@ -14,25 +14,8 @@ const FormSchema = z.object({
 	status: z.enum(["pending", "paid"]),
 	date: z.string(),
 });
-//
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function updateInvoice(id: string, formData: FormData) {
-	const { customerId, amount, status } = UpdateInvoice.parse({
-		customerId: formData.get("customerId"),
-		amount: formData.get("amount"),
-		status: formData.get("status"),
-	});
-	const amountInCents = amount * 100;
-	await sql`
-	UPDATE invoices
-	SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-	WHERE id = ${id}
-	`;
-	revalidatePath("/dashboard/invoices");
-	redirect("/dashboard/invoices");
-}
-// Create Invoices Section
+// Start Create Invoices Section
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 export async function createInvoice(formData: FormData) {
 	const { customerId, amount, status } = CreateInvoice.parse({
@@ -54,3 +37,31 @@ export async function createInvoice(formData: FormData) {
 	revalidatePath("/dashboard/invoices");
 	redirect("/dashboard/invoices");
 }
+// End Create Invoices Section
+
+// Start Update Invoices Section
+const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+
+export async function updateInvoice(id: string, formData: FormData) {
+	const { customerId, amount, status } = UpdateInvoice.parse({
+		customerId: formData.get("customerId"),
+		amount: formData.get("amount"),
+		status: formData.get("status"),
+	});
+	const amountInCents = amount * 100;
+	await sql`
+	UPDATE invoices
+	SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+	WHERE id = ${id}
+	`;
+	revalidatePath("/dashboard/invoices");
+	redirect("/dashboard/invoices");
+}
+// End Update Invoices Section
+
+// Start Delete Invoices Section
+export async function deleteInvoice(id: string) {
+	await sql`DELETE FROM invoices WHERE id = ${id}`;
+	revalidatePath("/dashboard/invoices");
+}
+// End Delete Invoices Section
